@@ -1,4 +1,4 @@
-const { httpGet } = require("../httpClient");
+const { httpGet } = require("./httpClient");
 const cheerio = require('cheerio');
 
 /**
