@@ -1,5 +1,5 @@
-const axios = require('axios');
 const cheerio = require('cheerio');
+const { httpGet } = require('../httpClient');
 
 const SOURCE = {
   name: '湖南大学主页 - 通知公告',
@@ -11,10 +11,7 @@ const SOURCE = {
  * @returns {Promise<Array<{title: string, link: string, date: string, source: string}>>}
  */
 async function scrape() {
-  const { data } = await axios.get(SOURCE.url, {
-    timeout: 30000,
-    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-  });
+  const { data } = await httpGet(SOURCE.url);
 
   const $ = cheerio.load(data);
   const items = [];
