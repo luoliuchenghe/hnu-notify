@@ -3,8 +3,9 @@ const nodemailer = require('nodemailer');
 /**
  * 发送邮件通知
  * @param {Array} items - 新的通知列表
+ * @param {string} [aiHtml] - AI 分析结果 HTML
  */
-async function sendNotification(items) {
+async function sendNotification(items, aiHtml) {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_TO, MAIL_FROM_NAME } = process.env;
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !MAIL_TO) {
@@ -46,6 +47,14 @@ async function sendNotification(items) {
   <div class="container">
     <h1>📢 湖南大学 - 今日新通知</h1>
     <p style="color: #666; font-size: 14px;">共发现 <strong>${items.length}</strong> 条新通知</p>
+
+    ${
+      aiHtml ? `
+    <div style="background:#f9f7f4;border-radius:8px;padding:16px;margin:16px 0;border:1px solid #eee;">
+      <h2 style="font-size:16px;color:#B5121B;margin:0 0 10px 0;">🤖 AI 智能分析</h2>
+      <div style="font-size:13px;line-height:1.7;">${aiHtml}</div>
+    </div>` : ''
+    }
 `;
 
   for (const [source, sourceItems] of Object.entries(grouped)) {
