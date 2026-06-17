@@ -12,6 +12,7 @@ require('dotenv').config();
 
 const store = require('./store');
 const { sendNotification } = require('./notifier');
+const { analyze } = require('./analyzer');
 
 // 所有抓取器
 const scrapers = [
@@ -70,12 +71,16 @@ async function main() {
     console.log(`   · [${item.source}] ${item.title} (${item.date || '日期未知'})`);
   }
 
-  // 3. 发送邮件通知
+  // 3. AI 分析分类
+  console.log('\n🤖 AI 分析中...');
+  const aiHtml = await analyze(newItems);
+
+  // 4. 发送邮件通知
   console.log('\n📧 正在发送邮件...');
-  const sent = await sendNotification(newItems);
+  const sent = await sendNotification(newItems, aiHtml);
 
   if (sent) {
-    // 4. 标记为已见
+    // 5. 标记为已见
     store.markAllSeen(allItems);
     console.log('💾 已更新 seen.json');
     console.log('\n✅ 任务完成！');
