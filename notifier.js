@@ -118,7 +118,7 @@ async function sendNotification(items) {
     const info = await transporter.sendMail({
       from: `"${MAIL_FROM_NAME || '湖南大学通知助手'}" <${SMTP_USER}>`,
       to: MAIL_TO,
-      subject: `📢 湖南大学通知日报 - ${new Date().toLocaleDateString('zh-CN')}`,
+      subject: `[HNU通知] 湖南大学通知日报 - ${new Date().toLocaleDateString('zh-CN')}`,
       text: textBody,
       html: htmlBody,
     });
