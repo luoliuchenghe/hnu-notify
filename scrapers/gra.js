@@ -33,7 +33,7 @@ function isValidItem(title, link) {
  */
 async function scrape() {
   const { data } = await axios.get(SOURCE.url, {
-    timeout: 15000,
+    timeout: 30000,
     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
   });
 
