@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { httpGet } = require("../httpClient");
 const cheerio = require('cheerio');
 
 const SOURCE = {
@@ -10,10 +10,9 @@ const SOURCE = {
  * 抓取教务处通知公告列表
  */
 async function scrape() {
-  const { data } = await axios.get(SOURCE.url, {
-    timeout: 30000,
+  const { data } = await httpGet(SOURCE.url, {
     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-  });
+  });  // timeout});headers in httpGet
 
   const $ = cheerio.load(data);
   const items = [];
@@ -65,8 +64,8 @@ async function scrape() {
       link: fullLink,
       date: dateText,
       source: SOURCE.name,
-    });
-  });
+    });  // timeout});headers in httpGet
+  });  // timeout});headers in httpGet
 
   // 如果上面的选择器没抓到，尝试首页结构（通知在首页右侧）
   if (items.length === 0) {
@@ -90,8 +89,8 @@ async function scrape() {
         link: fullLink,
         date: dateText,
         source: SOURCE.name,
-      });
-    });
+      });  // timeout});headers in httpGet
+    });  // timeout});headers in httpGet
   }
 
   return items;
