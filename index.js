@@ -32,15 +32,23 @@ async function main() {
 
   const allItems = [];
 
-  // 1. 并行抓取所有来源
+  // 1. 抓取所有来源（失败自动重试1次）
   for (const scraper of scrapers) {
-    try {
-      console.log(`\n🔍 正在抓取: ${scraper.SOURCE.name}`);
-      const items = await scraper.scrape();
-      console.log(`   ✔ 获取到 ${items.length} 条通知`);
-      allItems.push(...items);
-    } catch (err) {
-      console.error(`   ❌ 抓取失败: ${err.message}`);
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        console.log(`\n🔍 正在抓取: ${scraper.SOURCE.name}${attempt > 1 ? ` (第${attempt}次重试)` : ''}`);
+        const items = await scraper.scrape();
+        console.log(`   ✔ 获取到 ${items.length} 条通知`);
+        allItems.push(...items);
+        break; // 成功则跳出重试循环
+      } catch (err) {
+        if (attempt < 2) {
+          console.warn(`   ⚠ 第${attempt}次失败: ${err.message}，1秒后重试...`);
+          await new Promise(r => setTimeout(r, 1000));
+        } else {
+          console.error(`   ❌ 抓取失败: ${err.message}`);
+        }
+      }
     }
   }
 
