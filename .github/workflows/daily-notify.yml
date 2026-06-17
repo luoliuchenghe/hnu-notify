@@ -17,12 +17,11 @@ jobs:
 
       - name: 恢复 seen.json 缓存（避免重复通知）
         uses: actions/cache@v4
-        id: cache-seen
         with:
           path: seen.json
           key: hnu-notify-seen
-          restore-keys: |
-            hnu-notify-seen
+          # 每次运行都保存更新后的 seen.json，防止重复发送
+          save-always: true
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
