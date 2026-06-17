@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { httpGet } = require("../httpClient");
 const cheerio = require('cheerio');
 
 /**
@@ -8,10 +8,9 @@ const cheerio = require('cheerio');
  */
 async function fetchContent(url) {
   try {
-    const { data } = await axios.get(url, {
-      timeout: 15000,
+    const { data } = await httpGet(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-    });
+    });  // timeout});headers in httpGet
 
     const $ = cheerio.load(data);
 
