@@ -14,6 +14,25 @@ const store = require('./store');
 const { sendNotification } = require('./notifier');
 const { analyze } = require('./analyzer');
 
+// 日期过滤：只保留 2026年6月15日 之后的通知
+const MIN_DATE = new Date('2026-06-15');
+
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  // 支持格式: 2025/07/18, 2026-06-12, 2026/06/09
+  const cleaned = dateStr.replace(/\//g, '-');
+  const d = new Date(cleaned);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function filterByDate(items) {
+  return items.filter(item => {
+    const d = parseDate(item.date);
+    if (!d) return true; // 无日期的保留（可能是当天新发的）
+    return d >= MIN_DATE;
+  });
+}
+
 // 所有抓取器
 const scrapers = [
   require('./scrapers/hnu-main'),
@@ -56,8 +75,13 @@ async function main() {
 
   console.log(`\n📊 共抓取到 ${allItems.length} 条通知（全部来源）`);
 
-  // 2. 过滤出新通知
-  const { newItems, allSeen } = store.filterNew(allItems);
+  // 2. 按日期过滤：只保留 2026年6月15日 之后的通知
+  const filteredByDate = filterByDate(allItems);
+  const filteredCount = allItems.length - filteredByDate.length;
+  console.log(`📅 日期过滤: 移除 ${filteredCount} 条旧通知，保留 ${filteredByDate.length} 条`);
+
+  // 3. 过滤出新通知（去重）
+  const { newItems, allSeen } = store.filterNew(filteredByDate);
 
   if (newItems.length === 0) {
     console.log('\n✅ 没有新通知，无需发送邮件');
@@ -72,16 +96,16 @@ async function main() {
     console.log(`   · [${item.source}] ${item.title} (${item.date || '日期未知'})`);
   }
 
-  // 3. AI 分析分类
-  console.log('\n🤖 AI 分析中...');
+  // 4. AI 读取正文并总结关键信息
+  console.log('\n🤖 AI 正在读取通知内容并总结...');
   const aiHtml = await analyze(newItems);
 
-  // 4. 发送邮件通知
+  // 5. 发送邮件通知
   console.log('\n📧 正在发送邮件...');
   const sent = await sendNotification(newItems, aiHtml);
 
   if (sent) {
-    // 5. 标记为已见
+    // 6. 标记为已见
     store.markAllSeen(allItems);
     console.log('💾 已更新 seen.json');
     console.log('\n✅ 任务完成！');
