@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { httpGet } = require("../httpClient");
 const cheerio = require('cheerio');
 
 const SOURCE = {
@@ -11,10 +11,9 @@ const SOURCE = {
  * @returns {Promise<Array<{title: string, link: string, date: string, source: string}>>}
  */
 async function scrape() {
-  const { data } = await axios.get(SOURCE.url, {
-    timeout: 30000,
+  const { data } = await httpGet(SOURCE.url, {
     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
-  });
+  });  // timeout});headers in httpGet
 
   const $ = cheerio.load(data);
   const items = [];
@@ -46,8 +45,8 @@ async function scrape() {
       link: fullLink,
       date: dateText,
       source: SOURCE.name,
-    });
-  });
+    });  // timeout});headers in httpGet
+  });  // timeout});headers in httpGet
 
   return items;
 }
