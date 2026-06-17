@@ -33,21 +33,22 @@ async function main() {
 
   const allItems = [];
 
-  // 1. 抓取所有来源（失败自动重试1次）
+  // 1. 抓取所有来源（失败自动重试2次，共3次机会）
   for (const scraper of scrapers) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
       try {
         console.log(`\n🔍 正在抓取: ${scraper.SOURCE.name}${attempt > 1 ? ` (第${attempt}次重试)` : ''}`);
         const items = await scraper.scrape();
         console.log(`   ✔ 获取到 ${items.length} 条通知`);
         allItems.push(...items);
-        break; // 成功则跳出重试循环
+        break;
       } catch (err) {
-        if (attempt < 2) {
-          console.warn(`   ⚠ 第${attempt}次失败: ${err.message}，1秒后重试...`);
-          await new Promise(r => setTimeout(r, 1000));
+        const errDetail = err.code ? ` (${err.code})` : err.message ? '' : ' (无响应)';
+        if (attempt < 3) {
+          console.warn(`   ⚠ 第${attempt}次失败: ${err.message || '连接超时'}${errDetail}，2秒后重试...`);
+          await new Promise(r => setTimeout(r, 2000));
         } else {
-          console.error(`   ❌ 抓取失败: ${err.message}`);
+          console.error(`   ❌ 抓取失败: ${err.message || '连接超时'}${errDetail}`);
         }
       }
     }
